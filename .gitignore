@@ -9,3 +9,4 @@ wheels/
 data/*
 # Virtual environments
 .venv
+.ruff_cache
