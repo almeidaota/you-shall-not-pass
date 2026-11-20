@@ -10,7 +10,7 @@ Anomaly detectors for system logs are trained on data that is assumed to be clea
 
 ## Related work
 
-This project starts from LogPurge (Zhang et al., 2025), which removes anomalies from training logs before a detector learns from them. LogPurge was designed for accidental contamination and was evaluated on BGL, the dataset used here. The question this pipeline builds toward is what happens when the contamination is deliberate.
+This project starts from LogPurge (Zhang et al., 2025), which removes anomalies from training logs before a detector learns from them. LogPurge was designed for accidental contamination and was evaluated on BGL (the dataset used here), Liberty and a private industrial dataset. The question this pipeline builds toward is what happens when the contamination is deliberate.
 
 ## Pipeline (planned)
 
@@ -49,13 +49,27 @@ Requirements: Python 3.14 and [uv](https://docs.astral.sh/uv/).
 
 ```bash
 uv sync
-# download BGL.zip from Zenodo and extract BGL.log into data/
+uv run python -m pipeline.download   # BGL.zip from Zenodo -> data/BGL.log, checks size and line count
 ```
 
 Scripts and commands will be added here as each layer is built.
 
+## Code style
+
+- Code, comments and messages in English.
+- PEP 8 names: `snake_case` for variables and functions, `UPPER_CASE` for constants.
+- Names say what a thing is, not its type (`lines`, not `temp_df`).
+- `pathlib.Path` for file paths, not strings.
+- Type hints on function signatures.
+- Each step lives in `pipeline/` and runs with `uv run python -m pipeline.<step>`.
+- Before committing:
+
+  ```bash
+  uv run ruff format . && uv run ruff check .
+  ```
+
 ## References
 
 - Zhu, J., He, S., He, P., Liu, J., & Lyu, M. R. (2023). *Loghub: A Large Collection of System Log Datasets for AI-driven Log Analytics.* ISSRE 2023. [arXiv:2008.06448](https://arxiv.org/abs/2008.06448)
-- Zhang, S., Chen, Z., Que, Z., Liu, Y., Sun, Y., Wei, S., Pei, D., & Li, H. (2025). *LogPurge: Log Data Purification for Anomaly Detection via Rule-Enhanced Filtering.* [arXiv:2511.14062](https://arxiv.org/abs/2511.14062)
+- Zhang, S., Chen, Z., Que, Z., Liu, Y., Sun, Y., Wei, S., Pei, D., & Li, H. (2025). *LogPurge: Log Data Purification for Anomaly Detection via Rule-Enhanced Filtering.* arXiv preprint, [arXiv:2511.14062](https://arxiv.org/abs/2511.14062)
 - Oliner, A., & Stearley, J. (2007). *What Supercomputers Say: A Study of Five System Logs.* DSN 2007. [doi:10.1109/DSN.2007.103](https://doi.org/10.1109/DSN.2007.103)

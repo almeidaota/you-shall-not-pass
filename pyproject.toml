@@ -8,3 +8,12 @@ dependencies = [
     "matplotlib>=3.11.2",
     "polars>=2.1.0",
 ]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.17.6",
+]
+
+[tool.ruff.lint]
+# E/F: pycodestyle + pyflakes, I: import order, N: PEP 8 naming, UP: modern Python syntax
+select = ["E", "F", "I", "N", "UP"]
