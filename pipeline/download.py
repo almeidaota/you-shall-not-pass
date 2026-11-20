@@ -5,13 +5,12 @@ import urllib.request
 import zipfile
 from pathlib import Path
 
+from pipeline.config import DATA_DIR, LOG_PATH
+
+ZIP_PATH = DATA_DIR / "BGL.zip"
 URL = "https://zenodo.org/records/8196385/files/BGL.zip?download=1"
 ZIP_SIZE = 57_489_019
 LOG_LINES = 4_747_963
-
-DATA_DIR = Path("data")
-ZIP_PATH = DATA_DIR / "BGL.zip"
-LOG_PATH = DATA_DIR / "BGL.log"
 
 
 def count_lines(path: Path) -> int:
