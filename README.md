@@ -2,7 +2,7 @@
 
 A daily log pipeline with data contracts and a quarantine layer, built on the BGL supercomputer log dataset.
 
-> **Status:** work in progress. Download and landing (one file per day) are done. Bronze, silver and gold are the plan, not working code yet.
+> **Status: under active development.** Day-to-day work happens on the [`dev`](https://github.com/almeidaota/you-shall-not-pass/tree/dev) branch, where code, folder layout and commands may change or break between commits. `main` only gets a step once it runs end to end. Download and landing (one file per day) are done. Bronze, silver and gold are the plan, not working code yet.
 
 ## Why
 
