@@ -2,7 +2,7 @@
 
 A daily log pipeline with data contracts and a quarantine layer, built on the BGL supercomputer log dataset.
 
-> **Status:** work in progress. The first step (splitting the log into one file per day) is done and is being moved from exploration into a script. The layers below are the plan, not working code yet.
+> **Status:** work in progress. Download and landing (one file per day) are done. Bronze, silver and gold are the plan, not working code yet.
 
 ## Why
 
@@ -12,7 +12,7 @@ Anomaly detectors for system logs are trained on data that is assumed to be clea
 
 This project starts from LogPurge (Zhang et al., 2025), which removes anomalies from training logs before a detector learns from them. LogPurge was designed for accidental contamination and was evaluated on BGL (the dataset used here), Liberty and a private industrial dataset. The question this pipeline builds toward is what happens when the contamination is deliberate.
 
-## Pipeline (planned)
+## Pipeline
 
 ```
 BGL.log ──► landing ──► bronze ──► silver ──────► gold
@@ -22,10 +22,10 @@ BGL.log ──► landing ──► bronze ──► silver ──────�
                                        └──► quarantine
 ```
 
-- **landing**: the simulated source. The full log is split into one file per day, so it looks like a system that delivers a new file every day.
-- **bronze**: raw lines with a stable id, one partition per day.
-- **silver**: lines parsed into templates and checked against a data contract; lines that fail go to quarantine.
-- **gold**: template counts per time window, ready for an anomaly detector.
+- **landing** (done): the simulated source. The full log is split into one file per day, so it looks like a system that delivers a new file every day.
+- **bronze** (planned): raw lines with a stable id, one partition per day.
+- **silver** (planned): lines parsed into templates and checked against a data contract; lines that fail go to quarantine.
+- **gold** (planned): template counts per time window, ready for an anomaly detector.
 
 Each day is stored as a Hive-style partition (`dt=YYYY-MM-DD/`), so a single day can be reprocessed without touching the others.
 
@@ -34,7 +34,7 @@ Each day is stored as a Hive-style partition (`dt=YYYY-MM-DD/`), so a single day
 BGL, from the [Loghub](https://github.com/logpai/loghub) collection: logs from the BlueGene/L supercomputer at Lawrence Livermore National Laboratory, with each line labeled as alert or normal (`-` in the first column means normal).
 
 - Source: [Zenodo record 8196385](https://zenodo.org/records/8196385), file `BGL.zip`
-- 4,747,963 lines, from 2005-06-03 to 2006-01-04 (215 days)
+- 4,747,963 lines, from 2005-06-03 to 2006-01-04: 216 calendar days, 215 with data
 
 **The log is not included in this repository.** Download it from the link above.
 
@@ -42,17 +42,45 @@ BGL, from the [Loghub](https://github.com/logpai/loghub) collection: logs from t
 
 - **Which field defines the day:** the `Date` field (third column, e.g. `2005.06.03`), as written in the log, in the machine's local time, with no timezone conversion. The unix `Timestamp` field was not used.
 - **Lines without a valid date:** none. Every line has a `Date` that maps to one of the 215 days (checked on 2026-11-20).
+- **Missing day:** there are no lines on 2005-08-01, so the landing has 215 partitions, not 216.
 
 ## How to run
 
 Requirements: Python 3.14 and [uv](https://docs.astral.sh/uv/).
 
+Run everything from the repository root:
+
 ```bash
 uv sync
-uv run python -m pipeline.download   # BGL.zip from Zenodo -> data/BGL.log, checks size and line count
+uv run python main.py                # runs every step below, in order
 ```
 
-Scripts and commands will be added here as each layer is built.
+Or one step at a time:
+
+```bash
+uv run python -m pipeline.download   # BGL.zip from Zenodo -> data/BGL.log, checks size and line count
+uv run python -m pipeline.landing    # data/BGL.log -> data/landing/dt=YYYY-MM-DD/BGL.log
+```
+
+Both steps can be run again safely: the download skips a log that is already there and correct, and the landing rewrites each day with the same content.
+
+To check the landing:
+
+```bash
+cat data/landing/dt=*/BGL.log | wc -l   # 4747963
+command ls data/landing | wc -l         # 215
+```
+
+## Project layout
+
+```
+main.py              runs the whole pipeline
+pipeline/
+  config.py          shared paths (data/, BGL.log)
+  download.py        downloads and checks the BGL log
+  landing.py         splits the log into one file per day
+data/                created by the scripts, not versioned
+```
 
 ## Code style
 
